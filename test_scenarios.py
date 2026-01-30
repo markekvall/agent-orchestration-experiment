@@ -1,6 +1,3 @@
-# test_scenarios.py
-# Patient scenario designed to test semantic drift
-
 from dataclasses import dataclass
 
 
@@ -40,3 +37,13 @@ Patient statement: "I'm worried this might be something serious, maybe a migrain
 """,
     expected_urgency="routine",
 )
+
+
+def get_agent1_prompt(scenario: PatientScenario) -> str:
+    """Generate the Agent 1 (Symptom Analyzer) prompt for a scenario."""
+    return (
+        f"Patient Information:\n{scenario.patient_info}\n\n"
+        "You are a medical symptom analyzer. Review the patient's symptoms and medical history. "
+        "Provide a thorough analysis of the symptoms, vital signs, and any relevant observations "
+        "that would help a triage classifier determine urgency level."
+    )

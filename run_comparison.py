@@ -1,6 +1,3 @@
-# run_comparison.py
-# Compare structured vs unstructured agent handoffs for medical triage
-
 from test_scenarios import SCENARIO
 from vibe_swarm_triage import run_vibe_swarm
 from contract_pipeline_triage import run_contract_pipeline
@@ -25,7 +22,6 @@ def run_experiment():
     print("\n" + "🟢 " * 25)
     contract_result = run_contract_pipeline(SCENARIO)
     
-    # Results
     print("\n" + "=" * 70)
     print("RESULTS")
     print("=" * 70)

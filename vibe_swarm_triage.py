@@ -1,15 +1,10 @@
-# vibe_swarm_triage.py
-# Control Group: Unstructured chat history (The Vibe Swarm)
-# This demonstrates semantic drift through conversation history
-
 import os
 from google import genai
 from google.genai import types
-from test_scenarios import PatientScenario
+from test_scenarios import PatientScenario, SCENARIO, get_agent1_prompt
 from triage_schemas import TriageDecision
 
 
-# Setup client from environment variables
 client = genai.Client(
     vertexai=True,
     project=os.environ["GCP_PROJECT_ID"],
@@ -36,16 +31,9 @@ def run_vibe_swarm(scenario: PatientScenario) -> dict:
     # Create a chat session that maintains full conversation history
     chat = client.chats.create(model=MODEL_ID)
     
-    # --- Agent 1: Symptom Analyzer (The Rambler) ---
-    # This agent is encouraged to think out loud, including speculation
+    # --- Agent 1: Symptom Analyzer ---
     print(">>> Agent 1 (Symptom Analyzer) is analyzing...")
-    agent1_prompt = (
-        f"Patient Information:\n{scenario.patient_info}\n\n"
-        "You are a medical symptom analyzer. Review the patient's symptoms and medical history. "
-        "Think out loud about what you observe, including any possible conditions or concerns. "
-        "Discuss what might be happening, what could be serious, and what we should watch for. "
-        "Provide a detailed analysis for the triage classifier."
-    )
+    agent1_prompt = get_agent1_prompt(scenario)
     
     response_agent1 = chat.send_message(agent1_prompt)
     agent1_output = response_agent1.text
@@ -58,9 +46,6 @@ def run_vibe_swarm(scenario: PatientScenario) -> dict:
     # --- Agent 2: Triage Classifier (The Victim of Drift) ---
     # This agent receives the FULL chat history, including Agent 1's speculation
     # The semantic drift happens here: Agent 2 may latch onto speculative terms
-    # 
-    # KEY FIX: We use structured output for reliable parsing, but still pass
-    # the full conversation history so context pollution can occur
     print(">>> Agent 2 (Triage Classifier) is making decision...")
     agent2_prompt = (
         "You are a medical triage classifier. Based on the symptom analysis above, "
@@ -78,7 +63,7 @@ def run_vibe_swarm(scenario: PatientScenario) -> dict:
         contents=chat_history,
         config=types.GenerateContentConfig(
             response_mime_type="application/json",
-            response_schema=TriageDecision,  # Structured output for reliable parsing
+            response_schema=TriageDecision,
         ),
     )
     

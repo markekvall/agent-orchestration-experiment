@@ -1,6 +1,3 @@
-# triage_schemas.py
-# Pydantic schemas for structured handoffs between triage agents
-
 from pydantic import BaseModel, Field
 from typing import Literal
 
